@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { body, param } from 'express-validator'
 import { ProjectController } from '../controllers/ProjectController'
 import { handleInputErrors } from '../middleware/validation'
-import { Taskcontroller } from '../controllers/TaskController'
+import { TaskController } from '../controllers/TaskController'
 import { validateProjectExists } from '../middleware/project'
 
 const router = Router()
@@ -54,7 +54,12 @@ router.post('/:projectId/tasks',
     body('description')
         .notEmpty().withMessage('La descripcion de la tarea es obligatoria'),
     handleInputErrors,
-    Taskcontroller.createTask
+    TaskController.createTask
+)
+
+router.get('/:projectId/tasks',
+    validateProjectExists,
+    TaskController.getProjectTasks
 )
 
 
