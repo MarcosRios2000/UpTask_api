@@ -44,7 +44,7 @@ export class ProjectController {
     static updateProduct = async (req: Request, res: Response) => {
         const { id } = req.params
         try {
-            const project = await Project.findByIdAndUpdate(id, req.body)
+            const project = await Project.findById(id)
 
             await project.save()
             res.send('Proyecto Actualizado')
