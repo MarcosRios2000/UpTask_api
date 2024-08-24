@@ -6,7 +6,7 @@ const taskStatus = {
     IN_PROGRESS: 'inProgress',
     UNDER_REVIEW: 'underReview',
     COMPLETED: 'completed'
-} as const 
+} as const
 
 export type TaskStatus = typeof taskStatus[keyof typeof taskStatus]
 
@@ -34,7 +34,7 @@ export const TaskSchema : Schema = new Schema({
     },
     status: {
         type: String,
-        ref: Object.values(taskStatus),
+        enum: Object.values(taskStatus),
         default: taskStatus.PENDING
     }
 }, {timestamps: true})
