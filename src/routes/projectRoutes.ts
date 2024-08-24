@@ -4,7 +4,7 @@ import { ProjectController } from '../controllers/ProjectController'
 import { handleInputErrors } from '../middleware/validation'
 import { TaskController } from '../controllers/TaskController'
 import { projectExists } from '../middleware/project'
-import { taskExists } from '../middleware/task'
+import { taskBelongsToProject, taskExists } from '../middleware/task'
 
 const router = Router()
 
@@ -50,6 +50,7 @@ router.delete('/:id',
 router.param('projectId', projectExists)
 
 router.param('taskId', taskExists)
+router.param('taskId', taskBelongsToProject)
 
 
 router.post('/:projectId/tasks',
