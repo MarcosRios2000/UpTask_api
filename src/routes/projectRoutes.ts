@@ -129,12 +129,19 @@ router.delete('/:projectId/team/:userId',
 )
 
 /** Routes for Notes */
+
 router.post('/:projectId/tasks/:taskId/notes',
     body('content')
         .notEmpty().withMessage('El contenido de la nota es obligatorio'),
         handleInputErrors,
         NoteController.createNote
 )
+
+
+router.get('/:projectId/tasks/:taskId/notes',
+    NoteController.getTaskNotes
+)
+
 
 
 export default router
