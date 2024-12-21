@@ -1,6 +1,6 @@
 import type { Request, Response } from "express"
 import User from "../models/User"
-import { checkPassword, hashPassword } from "../utils/auth"
+import { checkPassword, hashPassword } from '../utils/auth';
 import Token from "../models/Token"
 import { generateToken } from "../utils/token"
 import { AuthEmail } from "../emails/AuthEmail"
@@ -243,5 +243,18 @@ export class AuthController {
         } catch (error) {
             res.status(500).json({error: 'Hubo un error'})
         }
+    }
+
+    static checkPassword = async(req: Request, res: Response) => {
+        const { password } = req.body
+
+        const user = await User.findById(req.user.id)
+
+        const isPasswordCorrect = await checkPassword(password, user.password)
+        if(!isPasswordCorrect) {
+            const error = new Error('El password es incorrecto')
+            return res.status(401).json({error: error.message})
+        }
+        res.send('Password correcto')
     }
 }
