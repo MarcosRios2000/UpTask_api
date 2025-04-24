@@ -1,6 +1,6 @@
 import type { Request, Response } from "express"
 import User from "../models/User"
-import { checkPassword, hashPassword } from '../utils/auth';
+import { checkPassword, hashPassword } from '../utils/auth'
 import Token from "../models/Token"
 import { generateToken } from "../utils/token"
 import { AuthEmail } from "../emails/AuthEmail"
@@ -11,7 +11,7 @@ export class AuthController {
 
     static createAccount = async(req: Request, res: Response) => {
        try {
-            const { password, email } = req.body 
+           const { password, email } = req.body 
 
             const userExists = await User.findOne({email})
             if(userExists){
@@ -20,14 +20,13 @@ export class AuthController {
             }
 
             const user = new User(req.body)
-         
             user.password = await hashPassword(password)
-            
+
             const token = new Token()
             token.token = generateToken()
             token.user = user.id
 
-            AuthEmail.sendConfirmationEmail({
+            await AuthEmail.sendConfirmationEmail({
                 email: user.email,
                 name: user.name,
                 token: token.token
@@ -51,10 +50,13 @@ export class AuthController {
             }
 
             const user = await User.findById(tokenExist.user)
-            user.confirmed = true
-
-            await Promise.allSettled([ user.save(), tokenExist.deleteOne() ])
-            res.send('Your account has been confirmed.')
+            if (user) {
+                user.confirmed = true
+                await Promise.allSettled([ user.save(), tokenExist.deleteOne() ])
+                res.send('Your account has been confirmed.')
+            } else {
+                return res.status(404).json({ error: 'User not found.' })
+            }
         } catch (error) {
             res.status(500).json({error: 'Something went wrong.'})
         }
@@ -75,7 +77,7 @@ export class AuthController {
                 token.token = generateToken()
                 await token.save()
 
-                AuthEmail.sendConfirmationEmail({
+                await AuthEmail.sendConfirmationEmail({
                     email: user.email,
                     name: user.name,
                     token: token.token
@@ -91,10 +93,9 @@ export class AuthController {
                 const error = new Error('Incorrect password.')
                 return res.status(401).json({error: error.message})
             }
-            const token = generateJWT({id: user.id})
+            const jwt = generateJWT({id: user.id})
 
-            res.send(token)
-
+            res.send(jwt)
         } catch (error) {
             res.status(500).json({error: 'Something went wrong.'})
         }
@@ -114,19 +115,17 @@ export class AuthController {
                 const error = new Error('Account already confirmed.')
                 return res.status(403).json({error: error.message})
              }
- 
-             
              const token = new Token()
              token.token = generateToken()
              token.user = user.id
+             await token.save()
  
-             AuthEmail.sendConfirmationEmail({
+             await AuthEmail.sendConfirmationEmail({
                  email: user.email,
                  name: user.name,
                  token: token.token
              })
  
-             await Promise.allSettled([user.save(), token.save()])
              res.send('We’ve sent you a new confirmation link.')
         } catch (error) {
              res.status(500).json({error: 'Something went wrong.'})
@@ -143,19 +142,18 @@ export class AuthController {
                  return res.status(404).json({error: error.message})
              }
  
-             
              const token = new Token()
-             token.token = generateToken()
-             token.user = user.id
-             await token.save()
- 
-             AuthEmail.sendPasswordResetToken({
-                 email: user.email,
-                 name: user.name,
-                 token: token.token
-             })
- 
-             res.send('Check your email for instructions to reset your password.')
+            token.token = generateToken()
+            token.user = user.id
+            await token.save()
+
+            await AuthEmail.sendPasswordResetToken({
+                email: user.email,
+                name: user.name,
+                token: token.token
+            })
+
+            res.send('Check your email for instructions to reset your password.')
         } catch (error) {
              res.status(500).json({error: 'Something went wrong.'})
         }
