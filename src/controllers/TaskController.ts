@@ -1,34 +1,6 @@
 import type { Request, Response } from "express";
-import Project from "../models/Project";
 import Task from "../models/Task";
 
-
-// export class Taskcontroller {
-//     static createTask = async (req: Request, res: Response) => {
-//         // obtengo el id del proyecto
-//         const { projectId } = req.params
-//         // verifico si existe
-//         const project = await Project.findById(projectId)
-//         if(!project){
-//             const error = new Error('Projecto no encontrado')
-//             return res.status(404).json({error: error.message})
-//         }
-//         try {
-//             //creo la tarea
-//             const task = new Task(req.body)
-//             //le linkeo el projecto a esa tarea
-//             task.project = project.id
-//             //le linkeo la tarea al proyecto
-//             project.tasks.push(task.id)
-//             //guardo ambos en la db
-//             await task.save()
-//             await project.save()
-//             res.send('Tarea creada correctamente')
-//         } catch (error) {
-//             console.log(error)
-//         }
-//     }
-// }
 
 export class TaskController {
     static createTask = async (req: Request, res: Response) => {
@@ -37,9 +9,9 @@ export class TaskController {
             task.project = req.project.id
             req.project.tasks.push(task.id)
             await Promise.allSettled([task.save(), req.project.save() ])
-            res.send('Tarea creada correctamente')
+            res.send('Your task has been created.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
     }
 
@@ -49,7 +21,7 @@ export class TaskController {
             res.json(tasks)
 
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
     }
 
@@ -60,7 +32,7 @@ export class TaskController {
                             .populate({path: 'notes', populate: {path: 'createdBy', select: 'id name email'}})
             res.json(task)
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
     }
 
@@ -69,9 +41,9 @@ export class TaskController {
             req.task.name = req.body.name
             req.task.description = req.body.description
             await req.task.save()
-            res.send('Tarea actualizada correctamente')
+            res.send('Your task has been updated.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
     }
 
@@ -81,9 +53,9 @@ export class TaskController {
             req.project.tasks = req.project.tasks.filter( task => task.toString() !== req.task.id.toString() )
 
             await Promise.allSettled([ req.task.deleteOne(), req.project.save() ])
-            res.send('Tarea eliminada correctamente')
+            res.send('Your task has been deleted.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
     }
 
@@ -97,9 +69,9 @@ export class TaskController {
             }
             req.task.completedBy.push(data)
             await req.task.save()
-            res.send('Tarea Actualizada')
+            res.send('Your task has been updated.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
     }
 }

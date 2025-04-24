@@ -15,7 +15,7 @@ export class AuthController {
 
             const userExists = await User.findOne({email})
             if(userExists){
-                const error = new Error('El Usuario ya esta registrado')
+                const error = new Error('Email already in use.')
                 return res.status(409).json({error: error.message})
             }
 
@@ -34,9 +34,9 @@ export class AuthController {
             })
 
             await Promise.allSettled([user.save(), token.save()])
-            res.send('Cuenta creada, revisa tu email para confirmarla')
+            res.send('Account created. Check your email to confirm.')
        } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({error: 'Something went wrong.'})
        }
     }
 
@@ -46,7 +46,7 @@ export class AuthController {
 
             const tokenExist = await Token.findOne({token})
             if(!tokenExist) {
-                const error = new Error('Token no válido')
+                const error = new Error('Invalid token. Please request a new confirmation link.')
                 return res.status(404).json({error: error.message})
             }
 
@@ -54,9 +54,9 @@ export class AuthController {
             user.confirmed = true
 
             await Promise.allSettled([ user.save(), tokenExist.deleteOne() ])
-            res.send('Cuenta confirmada correctamente')
+            res.send('Your account has been confirmed.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({error: 'Something went wrong.'})
         }
     }
 
@@ -65,7 +65,7 @@ export class AuthController {
             const { email, password } = req.body
             const user = await User.findOne({email})
             if(!user){
-                const error = new Error('Usuario no encontrado')
+                const error = new Error('User not found.')
                 return res.status(404).json({error: error.message})
             }
 
@@ -82,13 +82,13 @@ export class AuthController {
                 })
 
 
-                const error = new Error('La cuenta no ha sido confirmada, hemos enviado un e-mail de confirmación')
+                const error = new Error('Account not confirmed. Check your email.')
                 return res.status(401).json({error: error.message})
             }
 
             const isPasswordCorrect = await checkPassword(password, user.password)
             if(!isPasswordCorrect){
-                const error = new Error('Password Incorrecto')
+                const error = new Error('Incorrect password.')
                 return res.status(401).json({error: error.message})
             }
             const token = generateJWT({id: user.id})
@@ -96,7 +96,7 @@ export class AuthController {
             res.send(token)
 
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({error: 'Something went wrong.'})
         }
     }
 
@@ -106,12 +106,12 @@ export class AuthController {
  
              const user = await User.findOne({email})
              if(!user){
-                 const error = new Error('El Usuario no esta registrado')
+                 const error = new Error('Account not found.')
                  return res.status(404).json({error: error.message})
              }
 
              if(user.confirmed){
-                const error = new Error('El Usuario ya esta confirmado')
+                const error = new Error('Account already confirmed.')
                 return res.status(403).json({error: error.message})
              }
  
@@ -127,9 +127,9 @@ export class AuthController {
              })
  
              await Promise.allSettled([user.save(), token.save()])
-             res.send('Se envió un nuevo token a tu e-mail')
+             res.send('We’ve sent you a new confirmation link.')
         } catch (error) {
-             res.status(500).json({error: 'Hubo un error'})
+             res.status(500).json({error: 'Something went wrong.'})
         }
      }
 
@@ -139,7 +139,7 @@ export class AuthController {
  
              const user = await User.findOne({email})
              if(!user){
-                 const error = new Error('El Usuario no esta registrado')
+                 const error = new Error('Account not found.')
                  return res.status(404).json({error: error.message})
              }
  
@@ -155,9 +155,9 @@ export class AuthController {
                  token: token.token
              })
  
-             res.send('Revisa tu email para instrucciones')
+             res.send('Check your email for instructions to reset your password.')
         } catch (error) {
-             res.status(500).json({error: 'Hubo un error'})
+             res.status(500).json({error: 'Something went wrong.'})
         }
      }
 
@@ -167,14 +167,14 @@ export class AuthController {
 
             const tokenExist = await Token.findOne({token})
             if(!tokenExist) {
-                const error = new Error('Token no válido')
+                const error = new Error('Invalid or expired link.')
                 return res.status(404).json({error: error.message})
             }
 
             
-            res.send('Token válido, Define tu nuevo password')
+            res.send('Link confirmed. Set your new password.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({error: 'Something went wrong.'})
         }
     }
 
@@ -184,7 +184,7 @@ export class AuthController {
 
             const tokenExist = await Token.findOne({token})
             if(!tokenExist) {
-                const error = new Error('Token no válido')
+                const error = new Error('Invalid or expired link.')
                 return res.status(404).json({error: error.message})
             }
 
@@ -194,9 +194,9 @@ export class AuthController {
 
             await Promise.allSettled([ user.save(), tokenExist.deleteOne() ])
             
-            res.send('El password se modificó correctamente')
+            res.send('Your password has been updated.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({error: 'Something went wrong.'})
         }
     }
 
@@ -209,7 +209,7 @@ export class AuthController {
 
         const userExists = await User.findOne({email})
         if(userExists && userExists.id.toString() !== req.user.id.toString()) {
-            const error = new Error('Ese email ya esta registrado')
+            const error = new Error('Email already in use.')
             return res.status(409).json({error: error.message})
         }
 
@@ -218,9 +218,9 @@ export class AuthController {
 
         try {
             await req.user.save()
-            res.send('Perfil actualizado correctamente')
+            res.send('Your changes have been saved.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({error: 'Something went wrong.'})
         }
     }
 
@@ -232,16 +232,16 @@ export class AuthController {
 
         const isPasswordCorrect = await checkPassword(current_password, user.password)
         if(!isPasswordCorrect) {
-            const error = new Error('El password actual es incorrecto')
+            const error = new Error('Incorrect current password.')
             return res.status(401).json({error: error.message})
         }
 
         try {
             user.password = await hashPassword(password)
             await user.save()
-            res.send('El password se modifico correctamente')
+            res.send('Your password has been updated.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({error: 'Something went wrong.'})
         }
     }
 
@@ -252,9 +252,9 @@ export class AuthController {
 
         const isPasswordCorrect = await checkPassword(password, user.password)
         if(!isPasswordCorrect) {
-            const error = new Error('El password es incorrecto')
+            const error = new Error('Incorrect password.')
             return res.status(401).json({error: error.message})
         }
-        res.send('Password correcto')
+        res.send('Your password has been verified.')
     }
 }

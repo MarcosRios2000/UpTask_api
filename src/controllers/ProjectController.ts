@@ -13,9 +13,9 @@ export class ProjectController {
 
        try {
          await project.save()
-         res.send('Proyecto creado correctamente')
+         res.send('Your project has been created.')
        } catch (error) {
-        res.status(500).json({error: 'Hubo un error'})
+        res.status(500).json({ error: 'Something went wrong.' })
        }
     }
 
@@ -29,7 +29,7 @@ export class ProjectController {
             })
             res.json(projects)
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
         
     }
@@ -40,17 +40,17 @@ export class ProjectController {
             const project = await Project.findById(id).populate('tasks')
 
             if(!project){
-                const error = new Error('Projecto no encontrado')
+                const error = new Error('Project not found.')
                 return res.status(404).json({error: error.message})
             }
 
             if(project.manager.toString() !== req.user.id.toString() && !project.team.includes(req.user.id)) {
-                const error = new Error('Acción no válida')
+                const error = new Error('Not allowed.')
                 return res.status(404).json({error: error.message})
             }
             res.json(project)
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
         
     }
@@ -62,9 +62,9 @@ export class ProjectController {
             req.project.projectName = req.body.projectName
             req.project.description = req.body.description
             await req.project.save()
-            res.send('Proyecto Actualizado')
+            res.send('Your project has been updated.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
         
     }
@@ -73,9 +73,9 @@ export class ProjectController {
     static deleteProject = async (req: Request, res: Response) => {
         try { 
             await req.project.deleteOne()
-            res.send('Proyecto eliminado')
+            res.send('Your project has been deleted.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
     }
 

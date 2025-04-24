@@ -18,9 +18,9 @@ export class NoteController {
 
         try {
             await Promise.allSettled([req.task.save(), note.save()])
-            res.send('Nota creada correctamente')
+            res.send('Note created successfully.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
     }
 
@@ -30,7 +30,7 @@ export class NoteController {
             const notes = await Note.find({task: req.task.id})
             res.json(notes)
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
     }
 
@@ -41,12 +41,12 @@ export class NoteController {
 
 
         if(!note) {
-            const error = new Error('Nota no encontrada')
+            const error = new Error('Note not found.')
             return res.status(404).json({error: error.message})
         }
 
         if(note.createdBy.toString() !== req.user.id.toString()) {
-            const error = new Error('Acción no válida')
+            const error = new Error('Not allowed.')
             return res.status(401).json({error: error.message})
         }
 
@@ -56,9 +56,9 @@ export class NoteController {
 
         try {
             await Promise.allSettled([req.task.save(), note.deleteOne()])
-            res.send('Nota Eliminada')
+            res.send('Your note has been deleted.')
         } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+            res.status(500).json({ error: 'Something went wrong.' })
         }
     }
 
