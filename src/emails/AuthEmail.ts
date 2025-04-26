@@ -12,7 +12,7 @@ interface IEmail {
 export class AuthEmail {
   static sendConfirmationEmail = async (user: IEmail) => {
     await resend.emails.send({
-      from: 'onboarding@resend.dev',
+      from: 'UpTask <no-reply@marcosrios.xyz>',
       to: user.email,
       subject: 'UpTask - Confirm your account',
       html: `
@@ -33,7 +33,7 @@ export class AuthEmail {
 
   static sendPasswordResetToken = async (user: IEmail) => {
     await resend.emails.send({
-      from: 'onboarding@resend.dev',
+      from: 'UpTask <no-reply@marcosrios.xyz>',
       to: user.email,
       subject: 'UpTask - Reset your password',
       html: `
